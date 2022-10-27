@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ metadata.name }}
+  namespace: {{ metadata.namespace }}
+spec:
+  replicas: {{ 1 }}
+  selector:
+    matchLabels:
+      app: {{ matchLabels.app }}
+      cluster: {{ matchLabels.cluster }}
+      component: {{ matchLabels.component }}
+      track: {{ prod }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: {{ maxSurge }}
+      maxUnavailable: {{ maxUnavailable }}
+  template:
+    metadata:
+      labels:
+        app: {{ flink }}
+        cluster: {{ repo_name-cluster }}
+        component: {{ jobmanager }}
+        track: {{ prod }}
+    spec:
+      containers:
+      - name: {{ name }}
+        image: {{ _DOCKER_IMAGE_TAG_ }}
+        imagePullPolicy: {{ imagePullPolicy }}
+        args: ["jobmanager"]
+        resources:
+          requests:
+            cpu: {{ cpu }}
+            memory: {{ memory }}
+          limits:
+            cpu: {{ "100.0" }}
+            memory: {{ "300Gi" }}
+        ports:
+        - containerPort: {{ rpc_jobmanager_container_port }}
+          name: rpc
+        - containerPort: {{ blob_jobmanager_container_port }}
+          name: blob
+        - containerPort: {{ query_jobmanager_container_port }}
+          name: query
+        - containerPort: {{ ui_jobmanager_container_port }}
+          name: ui
+        - containerPort: {{ metrics_jobmanager_container_port }}
+          name: metrics
+        env:
+        - name: JOB_MANAGER_RPC_ADDRESS
+          value: {{ JOB_MANAGER_RPC_ADDRESS }}
+        - name: HADOOP_USER_NAME
+          value: {{ HADOOP_USER_NAME }}
+        - name: JOB_MANAGER_MEMORY
+          value: {{ JOB_MANAGER_MEMORY }}
+        - name: HADOOP_CONF_DIR
+          value: {{ "/etc/hadoop/conf" }}
+        - name: TRACK
+          value: {{ prod }}
