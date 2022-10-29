@@ -1,60 +1,60 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ metadata.name }}
-  namespace: {{ metadata.namespace }}
+  name: {{ repo_name | mandatory }}-cluster-jobmanager-prod
+  namespace: {{ namespace or 'flink-assignment' }}
 spec:
-  replicas: {{ 1 }}
+  replicas: {{ jobmanager_replicas or 1 }}
   selector:
     matchLabels:
-      app: {{ matchLabels.app }}
-      cluster: {{ matchLabels.cluster }}
-      component: {{ matchLabels.component }}
-      track: {{ prod }}
+      app: {{ labels_app  or "flink" }}
+      cluster: {{ labels_cluster or  repo_name }}-cluster
+      component: {{ labels_component or "jobmanager"}}
+      track: {{ labels_track or "prod" }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: {{ maxSurge }}
-      maxUnavailable: {{ maxUnavailable }}
+      maxSurge: {{ maxSurge or 1 }}
+      maxUnavailable: {{ maxUnavailable or 0 }}
   template:
     metadata:
       labels:
-        app: {{ flink }}
-        cluster: {{ repo_name-cluster }}
-        component: {{ jobmanager }}
-        track: {{ prod }}
+        app: {{ labels_app  or "flink" }}
+        cluster: {{ labels_cluster or repo_name }}-cluster
+        component: {{ labels_component or "jobmanager"}}
+        track: {{ labels_track or "prod" }}
     spec:
       containers:
-      - name: {{ name }}
-        image: {{ _DOCKER_IMAGE_TAG_ }}
-        imagePullPolicy: {{ imagePullPolicy }}
+      - name: {{ name or "jobmanager" }}
+        image: {{ image or "docker_image" }}
+        imagePullPolicy: {{ imagePullPolicy or "Always" }}
         args: ["jobmanager"]
         resources:
           requests:
-            cpu: {{ cpu }}
-            memory: {{ memory }}
+            cpu: {{ cpu or "100.0" }}
+            memory: {{ memory or "300Gi"}}
           limits:
-            cpu: {{ "100.0" }}
-            memory: {{ "300Gi" }}
+            cpu: {{ cpu or  "100.0" }}
+            memory: {{ memory or "300Gi" }}
         ports:
-        - containerPort: {{ rpc_jobmanager_container_port }}
+        - containerPort: {{ rpc_jobmanager_container_port or 6123}}
           name: rpc
-        - containerPort: {{ blob_jobmanager_container_port }}
+        - containerPort: {{ blob_jobmanager_container_port or 6124}}
           name: blob
-        - containerPort: {{ query_jobmanager_container_port }}
+        - containerPort: {{ query_jobmanager_container_port or 6125}}
           name: query
-        - containerPort: {{ ui_jobmanager_container_port }}
+        - containerPort: {{ ui_jobmanager_container_port or 8081}}
           name: ui
-        - containerPort: {{ metrics_jobmanager_container_port }}
+        - containerPort: {{ metrics_jobmanager_container_port or 9610}}
           name: metrics
         env:
         - name: JOB_MANAGER_RPC_ADDRESS
-          value: {{ JOB_MANAGER_RPC_ADDRESS }}
+          value: {{ JOB_MANAGER_RPC_ADDRESS or repo_name}}-cluster-jobmanager-prod
         - name: HADOOP_USER_NAME
-          value: {{ HADOOP_USER_NAME }}
+          value: {{ HADOOP_USER_NAME or "yarn"}}
         - name: JOB_MANAGER_MEMORY
-          value: {{ JOB_MANAGER_MEMORY }}
+          value: {{ JOB_MANAGER_MEMORY or "1000m" }}
         - name: HADOOP_CONF_DIR
-          value: {{ "/etc/hadoop/conf" }}
+          value: {{  HADOOP_CONF_DIR or "/etc/hadoop/conf" }}
         - name: TRACK
-          value: {{ prod }}
+          value: {{ TRACK or "prod" }}
