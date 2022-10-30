@@ -1,14 +1,14 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: "apps/v1"
+kind: "Deployment"
 metadata:
-  name: {{ repo_name | mandatory }}-cluster-jobmanager-prod
-  namespace: {{ namespace or 'flink-assignment' }}
+  name: {{ repo_name | mandatory }} -cluster-jobmanager-prod
+  namespace: {{ namespace or "flink-assignment" }}
 spec:
   replicas: {{ jobmanager_replicas or 1 }}
   selector:
     matchLabels:
       app: {{ labels_app  or "flink" }}
-      cluster: {{ labels_cluster or  repo_name }}-cluster
+      cluster: {{ labels_cluster or  repo_name }} -cluster
       component: {{ labels_component or "jobmanager"}}
       track: {{ labels_track or "prod" }}
   strategy:
@@ -20,7 +20,7 @@ spec:
     metadata:
       labels:
         app: {{ labels_app  or "flink" }}
-        cluster: {{ labels_cluster or repo_name }}-cluster
+        cluster: {{ labels_cluster or repo_name }} -cluster
         component: {{ labels_component or "jobmanager"}}
         track: {{ labels_track or "prod" }}
     spec:
@@ -49,7 +49,7 @@ spec:
           name: metrics
         env:
         - name: JOB_MANAGER_RPC_ADDRESS
-          value: {{ JOB_MANAGER_RPC_ADDRESS or repo_name}}-cluster-jobmanager-prod
+          value: {{ JOB_MANAGER_RPC_ADDRESS or repo_name}} -cluster-jobmanager-prod
         - name: HADOOP_USER_NAME
           value: {{ HADOOP_USER_NAME or "yarn"}}
         - name: JOB_MANAGER_MEMORY
