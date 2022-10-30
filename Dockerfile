@@ -4,7 +4,7 @@
 FROM openjdk:8-jdk-alpine AS build
 
 # Dependency/environment versions
-ARG SBT_VERSION={{sbt or "1.6.1" | mandatory}}
+ARG SBT_VERSION={{sbt | mandatory}}
 ARG SCALA_VERSION=2.11.12
 ARG SPARK_VERSION=2.4.4
 ARG HADOOP_VERSION=2.7
