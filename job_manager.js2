@@ -1,0 +1,31 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "{{ mandatory.repo_name | mandatory }}"
+  namespace: '{{ non_mandatory.namespace or "flink-assignment" }}'
+spec:
+  replicas: '{{ non_mandatory.jobmanager_replicas or "1" }}'
+  selector:
+    matchLabels:
+      app: '{{ labels_app  or "flink" }}'
+      cluster: '{{ labels_cluster or  repo_name }}-cluster'
+      component: '{{ labels_component or "jobmanager"}}'
+      track: '{{ labels_track or "prod" }}'
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: '{{ maxSurge or 1 }}'
+      maxUnavailable: '{{ maxUnavailable or 0 }}'
+  template:
+    metadata:
+      labels:
+        app: '{{ labels_app  or "flink" }}'
+        cluster: '{{ labels_cluster or repo_name }}-cluster'
+        component: '{{ labels_component or "jobmanager"}}'
+        track: '{{ labels_track or "prod" }}'
+    spec:
+      containers:
+      - name: '{{ name or "jobmanager" }}'
+        image: '{{ mandatory.image | mandatory}}'
+        imagePullPolicy: '{{ imagePullPolicy }}'
+        args: ["jobmanager"]
