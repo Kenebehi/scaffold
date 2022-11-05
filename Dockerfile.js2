@@ -4,7 +4,7 @@
 FROM openjdk:8-jdk-alpine AS build
 
 # Dependency/environment versions
-ARG SBT_VERSION={{sbt | mandatory}}
+ARG SBT_VERSION={{ mandatory.sbt | mandatory}}
 ARG SCALA_VERSION=2.11.12
 ARG SPARK_VERSION=2.4.4
 ARG HADOOP_VERSION=2.7
@@ -47,7 +47,7 @@ COPY --from=build /tmp/sparkjobserver/job-server-extras/target/scala-*/spark-job
 
 # 8090: API
 # 9999: JMX
-EXPOSE {{ port | mandatory }} 9999
+EXPOSE {{ mandatory.port | mandatory }} 9999
 
 # Run jobserver
 CMD /opt/spark/bin/spark-submit \
